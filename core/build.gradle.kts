@@ -14,7 +14,7 @@ version = "0.0.1"
 kotlin {
     listOf(
         mingwX64(),
-        linuxX64()
+        // linuxX64()
     ).forEach { target ->
         target.apply {
             val main by compilations.getting
@@ -41,4 +41,10 @@ configure<KonanPluginExtension> {
     libName = "ma"
     konanPath = localKonanDir.listFiles()
         ?.first { it.name.contains(libs.versions.kotlin.get()) }?.absolutePath
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+    }
 }
