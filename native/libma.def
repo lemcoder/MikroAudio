@@ -1,5 +1,4 @@
 package = mikroAudio
-headerFilter = "mikroAudio/*"
-headers = mikroAudii/mikroAudio.h
-staticLibraries.mingw_x64 = libmikroaudio.a
-staticLibraries.linux_x64 = libmikroaudio.a
+headers = mikro_audio.h
+staticLibraries.mingw_x64 = libma.a
+staticLibraries.linux_x64 = libma.a

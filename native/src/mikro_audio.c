@@ -15,7 +15,6 @@ static ma_uint32 playbackBytesPerFrame = 0;
 
 static void playback_data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount) {
     if (!pPlaybackBuffer || playbackBufferSize == 0 || playbackBytesPerFrame == 0) {
-        LOGE("Playback buffer is null or uninitialized.");
         return;
     }
 
@@ -47,7 +46,6 @@ int initialize_playback_device(int channelCount, int sampleRate) {
 
     pPlaybackDevice = (ma_device *)malloc(sizeof(ma_device));
     if (!pPlaybackDevice) {
-        LOGE("Failed to allocate memory for playback device.");
         return MA_OUT_OF_MEMORY;
     }
 
@@ -60,7 +58,6 @@ int initialize_playback_device(int channelCount, int sampleRate) {
 
     result = ma_device_init(NULL, &deviceConfig, pPlaybackDevice);
     if (result != MA_SUCCESS) {
-        LOGE("Failed to initialize playback device.");
         free(pPlaybackDevice);
         pPlaybackDevice = NULL;
         return MA_ERROR;
@@ -72,7 +69,6 @@ int initialize_playback_device(int channelCount, int sampleRate) {
 
 int set_playback_buffer(void *buffer, long long int sizeInBytes) {
     if (!pPlaybackDevice) {
-        LOGE("Playback device not initialized. Call initialize first.");
         return MA_ERROR;
     }
 
@@ -81,13 +77,11 @@ int set_playback_buffer(void *buffer, long long int sizeInBytes) {
     }
 
     if (!buffer) {
-        LOGE("Null buffer passed.");
         return MA_ERROR;
     }
 
     pPlaybackBuffer = calloc(1, sizeInBytes);
     if (!pPlaybackBuffer) {
-        LOGE("Failed to allocate memory for playback buffer.");
         return MA_ERROR;
     }
 
@@ -109,18 +103,15 @@ void uninitialize_playback_device() {
         pPlaybackBuffer = NULL;
     }
 
-    LOGD("Playback device uninitialized.");
 }
 
 int start_playback() {
     if (!pPlaybackDevice) {
-        LOGE("Playback device not initialized. Call initialize first.");
         return MA_ERROR;
     }
 
     ma_result result = ma_device_start(pPlaybackDevice);
     if (result != MA_SUCCESS) {
-        LOGE("Failed to start playback.");
         return MA_ERROR;
     }
 
@@ -129,7 +120,6 @@ int start_playback() {
 
 void stop_playback() {
     if (!pPlaybackDevice) {
-        LOGE("Playback device not initialized. Call initialize first.");
         return;
     }
 
@@ -144,7 +134,6 @@ static ma_uint32 captureBytesPerFrame = 0;
 
 static void capture_data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount) {
     if (!pCaptureBuffer || captureRequiredSizeBytes == 0 || captureBytesPerFrame == 0) {
-        LOGE("Recording not initialized. Call initialize first.");
         return;
     }
 
@@ -181,7 +170,6 @@ int initialize_recording(long long int sizeInBytes, int channelCount, int sample
 
     result = ma_device_init(NULL, &deviceConfig, &recordingDevice);
     if (result != MA_SUCCESS) {
-        LOGE("Failed to initialize recording device.");
         return MA_ERROR;
     }
 
@@ -190,7 +178,6 @@ int initialize_recording(long long int sizeInBytes, int channelCount, int sample
 
     pCaptureBuffer = calloc(1, sizeInBytes);
     if (!pCaptureBuffer) {
-        LOGE("Failed to allocate memory for recording buffer.");
         return MA_ERROR;
     }
 
@@ -207,12 +194,10 @@ void uninitialize_recording() {
         pCaptureBuffer = NULL;
     }
 
-    LOGD("Recording uninitialized.");
 }
 
 void *stop_recording(long long int sizeInBytes) {
     ma_device_stop(&recordingDevice);
-    LOGD("Stopped recording.");
 
     void *tmpBuffer = malloc(sizeInBytes);
     memcpy(tmpBuffer, pCaptureBuffer, sizeInBytes);
@@ -224,13 +209,11 @@ int start_recording() {
     recordedBytes = 0;
 
     if (!pCaptureBuffer) {
-        LOGE("Recording buffer is null. Call initialize first.");
         return MA_ERROR;
     }
 
     if (ma_device_start(&recordingDevice) != MA_SUCCESS) {
         ma_device_uninit(&recordingDevice);
-        LOGE("Failed to start recording device.");
         return MA_ERROR;
     }
 

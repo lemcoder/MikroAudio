@@ -21,13 +21,10 @@ kotlin {
 
             main.cinterops.create("libma") {
                 definitionFile = File(rootDir, "native/libma.def")
-                includeDirs.headerFilterOnly("$rootDir\\native\\include")
+                includeDirs("$rootDir\\native\\include")
                 extraOpts("-libraryPath", "$rootDir\\native\\lib\\${target.name}")
             }
         }
-    }
-    mingwX64().apply {
-
     }
 
     sourceSets {
@@ -40,8 +37,8 @@ kotlin {
 configure<KonanPluginExtension> {
     kotlinTarget = KonanTarget.LINUX_X64
     sourceDir = "${rootDir}/native/src"
-    headerDir = "${rootDir}/native/include"
-    libName = "tsf"
+    headerDir = "${rootDir}/native/src"
+    libName = "ma"
     konanPath = localKonanDir.listFiles()
         ?.first { it.name.contains(libs.versions.kotlin.get()) }?.absolutePath
 }
