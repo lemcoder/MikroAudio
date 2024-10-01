@@ -3,7 +3,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "miniaudio/miniaudio.h"
 #include <unistd.h>
 
 int initialize_playback_device(int channelCount, int sampleRate);

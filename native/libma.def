@@ -1,4 +1,4 @@
 package = mikroAudio
 headers = mikro_audio.h
-staticLibraries.mingw_x64 = libma.a
-staticLibraries.linux_x64 = libma.a
+staticLibraries = libma.a
+compilerOpts.linux_x64 = -ldl -lpthread -lm

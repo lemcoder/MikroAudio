@@ -5,7 +5,9 @@
 
 // Miniaudio Configuration
 #define MINIAUDIO_IMPLEMENTATION
-#define MA_NO_RUNTIME_LINKING
+#include "miniaudio/miniaudio.h"
+
+// #define MA_NO_RUNTIME_LINKING
 
 static ma_device *pPlaybackDevice = NULL;
 static void *pPlaybackBuffer = NULL;
