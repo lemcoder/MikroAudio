@@ -4,6 +4,7 @@ import pl.lemanski.plugin.KonanPluginExtension
 
 plugins {
     alias(libs.plugins.jetbrains.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
     id("maven-publish")
     id("pl.lemanski.plugin")
 }
@@ -11,7 +12,18 @@ plugins {
 group = "pl.lemanski.mikroaudio"
 version = "0.0.1"
 
+android {
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+    }
+}
+
 kotlin {
+    jvmToolchain(17)
+
+    androidTarget()
+
     listOf(
         mingwX64(),
         linuxX64()
