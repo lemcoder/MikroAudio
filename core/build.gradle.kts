@@ -10,9 +10,10 @@ plugins {
 }
 
 group = "pl.lemanski.mikroaudio"
-version = "0.0.1"
+version = "0.0.2"
 
 android {
+    namespace = "pl.lemanski.mikroaudio"
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         compileSdk = libs.versions.android.compileSdk.get().toInt()
