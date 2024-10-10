@@ -1,13 +1,16 @@
-package pl.lemanski.mikroaudio
+package pl.lemanski.mikroaudio.internal
 
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
 
-internal actual fun getPlaybackManager(): PlaybackManager = AndroidPlaybackManager()
+internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): PlaybackManager = AndroidPlaybackManager(channelCount, sampleRate)
 
 
-internal class AndroidPlaybackManager : PlaybackManager {
+internal class AndroidPlaybackManager(
+    private val channelCount: Int,
+    private val sampleRate: Int
+) : PlaybackManager {
 
     private var audioTrack: AudioTrack? = null
     private var audioBuffer: ByteArray? = null
@@ -15,11 +18,16 @@ internal class AndroidPlaybackManager : PlaybackManager {
 
     override fun setupPlayback(buffer: ByteArray) {
         audioBuffer = buffer
+        val audioFormat = when (channelCount) {
+            1 -> AudioFormat.CHANNEL_OUT_MONO
+            2 -> AudioFormat.CHANNEL_OUT_STEREO
+            else -> throw IllegalArgumentException("Unsupported channel count: $channelCount")
+        }
 
         audioTrack = AudioTrack(
             AudioManager.STREAM_MUSIC,  // Use music stream for playback
-            44100,                      // Sample rate (44.1 kHz, common for music)
-            AudioFormat.CHANNEL_OUT_MONO,  // Mono output (can be changed to CHANNEL_OUT_STEREO for stereo)
+            sampleRate,
+            audioFormat,
             AudioFormat.ENCODING_PCM_FLOAT, // Float encoding
             buffer.size,                 // Buffer size equal to the size of the input buffer
             AudioTrack.MODE_STATIC       // Use static mode since the buffer won't change

@@ -1,4 +1,4 @@
-package pl.lemanski.mikroaudio
+package pl.lemanski.mikroaudio.internal
 
 interface RecordManager : AutoCloseable {
     fun setupRecording(bufferSize: Long)
@@ -6,4 +6,4 @@ interface RecordManager : AutoCloseable {
     fun stopRecording(): ByteArray
 }
 
-internal expect fun getRecordManager(): RecordManager
+internal expect fun getRecordManager(channelCount: Int, sampleRate: Int): RecordManager

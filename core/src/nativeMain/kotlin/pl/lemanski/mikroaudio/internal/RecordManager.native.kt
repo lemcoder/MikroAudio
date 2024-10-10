@@ -1,19 +1,22 @@
-package pl.lemanski.mikroaudio
+package pl.lemanski.mikroaudio.internal
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readBytes
 import mikroAudio.*
 
-internal actual fun getRecordManager(): RecordManager {
-    return RecordManagerImpl()
+internal actual fun getRecordManager(channelCount: Int, sampleRate: Int): RecordManager {
+    return RecordManagerImpl(channelCount, sampleRate)
 }
 
 @OptIn(ExperimentalForeignApi::class)
-internal class RecordManagerImpl : RecordManager {
+internal class RecordManagerImpl(
+    private val channelCount: Int,
+    private val sampleRate: Int
+) : RecordManager {
     private var bufferSize = -1
 
     override fun setupRecording(bufferSize: Long) {
-        initialize_recording(bufferSize, 2, 44_100)
+        initialize_recording(bufferSize, channelCount, sampleRate)
     }
 
     override fun startRecording() {

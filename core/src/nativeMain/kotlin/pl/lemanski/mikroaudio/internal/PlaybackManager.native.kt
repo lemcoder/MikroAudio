@@ -1,10 +1,10 @@
-package pl.lemanski.mikroaudio
+package pl.lemanski.mikroaudio.internal
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toCValues
 import mikroAudio.*
 
-internal actual fun getPlaybackManager(): PlaybackManager {
+internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): PlaybackManager {
     return PlaybackManagerImpl()
 }
 
