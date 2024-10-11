@@ -5,13 +5,16 @@ import kotlinx.cinterop.toCValues
 import mikroAudio.*
 
 internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): PlaybackManager {
-    return PlaybackManagerImpl()
+    return PlaybackManagerImpl(channelCount, sampleRate)
 }
 
 @OptIn(ExperimentalForeignApi::class)
-internal class PlaybackManagerImpl : PlaybackManager {
+internal class PlaybackManagerImpl(
+    private val channelCount: Int,
+    private val sampleRate: Int
+) : PlaybackManager {
     init {
-        initialize_playback_device(2, 44_100)
+        initialize_playback_device(channelCount, sampleRate)
     }
 
     override fun setupPlayback(buffer: ByteArray) {

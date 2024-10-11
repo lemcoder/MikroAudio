@@ -3,7 +3,7 @@ package pl.lemanski.mikroaudio
 import pl.lemanski.mikroaudio.internal.DefaultAudioEngine
 
 class MikroAudio(
-    private val audioEngine: AudioEngine = DefaultAudioEngine()
+    val audioEngine: AudioEngine = DefaultAudioEngine()
 ) {
 
     fun record(bufferSize: Long) {
