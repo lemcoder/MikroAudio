@@ -1,4 +1,6 @@
 #include "mikro_audio.h"
+#include <string.h>
+#include <stdlib.h>
 
 #ifndef MIKRO_AUDIO_C
 #define MIKRO_AUDIO_C
@@ -87,7 +89,7 @@ int set_playback_buffer(void *buffer, long long int sizeInBytes) {
         return MA_ERROR;
     }
 
-    memcpy(pPlaybackBuffer, buffer, sizeInBytes);
+    ma_copy_memory_64(pPlaybackBuffer, buffer, sizeInBytes);
     playbackBufferSize = sizeInBytes;
 
     return MA_SUCCESS;

@@ -18,6 +18,12 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/androidMain/cpp/CMakeLists.txt")
+        }
+    }
 }
 
 kotlin {

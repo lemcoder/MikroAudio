@@ -1,77 +1,39 @@
 package pl.lemanski.mikroaudio.internal
 
-import android.annotation.SuppressLint
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.MediaRecorder
-
 internal actual fun getRecordManager(channelCount: Int, sampleRate: Int): RecordManager = AndroidRecordManager(channelCount, sampleRate)
 
 internal class AndroidRecordManager(
     private val channelCount: Int,
     private val sampleRate: Int
 ) : RecordManager {
-    private var audioRecord: AudioRecord? = null
-    private var bufferSize: Int = 0
-    private var isRecording = false
-    private lateinit var recordingBuffer: ByteArray
+    private var lastBufferSize: Long = 0
 
-    @SuppressLint("MissingPermission")
-    override fun setupRecording(bufferSize: Long) {
-        val audioFormat = when (channelCount) {
-            1 -> AudioFormat.CHANNEL_IN_MONO
-            2 -> AudioFormat.CHANNEL_IN_STEREO
-            else -> throw IllegalArgumentException("Unsupported channel count: $channelCount")
+    override fun setupRecording(bufferSize: Long) = launchNative("initialize_recording: $channelCount, $sampleRate, $bufferSize") {
+        val result = initializeRecordingNative(channelCount, sampleRate, bufferSize)
+
+        if (result == 0) {
+            lastBufferSize = bufferSize
         }
 
-        val minBufferSize = AudioRecord.getMinBufferSize(
-            sampleRate,
-            audioFormat,
-            AudioFormat.ENCODING_PCM_FLOAT // Float encoding
-        )
-
-        this.bufferSize = minBufferSize.coerceAtLeast(bufferSize.toInt())
-
-        recordingBuffer = ByteArray(this.bufferSize)
-
-        audioRecord = AudioRecord(
-            MediaRecorder.AudioSource.MIC, // Use the device's microphone
-            sampleRate,
-            audioFormat,
-            AudioFormat.ENCODING_PCM_FLOAT, // Float encoding
-            this.bufferSize // Buffer size for the recording
-        )
+        result
     }
 
-    override fun startRecording() {
-        if (audioRecord == null) {
-            throw IllegalStateException("Recording has not been set up. Call setupRecording() first.")
-        }
-
-        audioRecord?.startRecording()
-        isRecording = true
-
-        //TODO add code here to record in a background thread and fill the buffer.
+    override fun startRecording() = launchNative("start_recording") {
+        startRecordingNative()
     }
 
-    override fun stopRecording(): ByteArray {
-        if (!isRecording) {
-            throw IllegalStateException("Recording is not active. Call startRecording() first.")
-        }
+    override fun stopRecording(): ByteArray = stopRecordingNative(lastBufferSize)
 
-        audioRecord?.stop()
-        isRecording = false
-
-        audioRecord?.read(recordingBuffer, 0, recordingBuffer.size)
-
-        return recordingBuffer
+    override fun close() = launchNative("uninitialize_recording") {
+        uninitializeRecordingNative()
+        return@launchNative 0
     }
 
-    override fun close() {
-        if (isRecording) {
-            stopRecording() // Ensure recording is stopped
-        }
-        audioRecord?.release() // Release AudioRecord resources
-        audioRecord = null
-    }
+    private external fun initializeRecordingNative(channelCount: Int, sampleRate: Int, sizeInBytes: Long): Int
+
+    private external fun startRecordingNative(): Int
+
+    private external fun stopRecordingNative(sizeInBytes: Long): ByteArray
+
+    private external fun uninitializeRecordingNative()
 }
