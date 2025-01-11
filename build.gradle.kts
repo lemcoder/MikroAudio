@@ -2,4 +2,5 @@
 plugins {
     alias(libs.plugins.jetbrains.kotlin.multiplatform) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.konanplugin) apply false
 }

@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.util.DependencyDirectories.localKonanDir
-import pl.lemanski.plugin.KonanPluginExtension
+import io.github.lemcoder.KonanPluginExtension
 
 plugins {
     alias(libs.plugins.jetbrains.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     id("maven-publish")
-    id("pl.lemanski.plugin")
+    alias(libs.plugins.konanplugin)
 }
 
 group = "pl.lemanski.mikroaudio"
@@ -56,12 +56,24 @@ kotlin {
 }
 
 configure<KonanPluginExtension> {
-    kotlinTarget = KonanTarget.LINUX_X64
+    targets = buildList {
+        add(KonanTarget.LINUX_X64)
+        add(KonanTarget.MINGW_X64)
+        if (System.getProperty("os.name").lowercase().contains("mac")) {
+            add(KonanTarget.IOS_ARM64)
+            add(KonanTarget.IOS_SIMULATOR_ARM64)
+            add(KonanTarget.IOS_X64)
+            add(KonanTarget.MACOS_X64)
+            add(KonanTarget.MACOS_ARM64)
+        }
+    }
     sourceDir = "${rootDir}/native/src"
-    headerDir = "${rootDir}/native/src"
+    headerDir = "${rootDir}/native/include"
+    outputDir = "${rootDir}/native/lib"
     libName = "ma"
-    konanPath = localKonanDir.listFiles()
-        ?.first { it.name.contains(libs.versions.kotlin.get()) }?.absolutePath
+    konanPath = localKonanDir.listFiles()?.first {
+        it.name.contains(libs.versions.kotlin.get())
+    }?.absolutePath
 }
 
 publishing {
