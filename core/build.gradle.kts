@@ -43,7 +43,7 @@ kotlin {
             main.cinterops.create("libma") {
                 definitionFile = File(rootDir, "native/libma.def")
                 includeDirs("$rootDir\\native\\include")
-                extraOpts("-libraryPath", "$rootDir\\native\\lib\\${target.name}")
+                extraOpts("-libraryPath", "$rootDir\\native\\lib\\${target.konanTarget.name}")
             }
         }
     }
