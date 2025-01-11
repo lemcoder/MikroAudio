@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MikroAudio"
 include(":core")
+include(":example")
