@@ -3,7 +3,8 @@
 
 JNIEXPORT jint JNICALL
 Java_pl_lemanski_mikroaudio_internal_AndroidPlaybackManager_initializePlaybackNative(JNIEnv *env, jobject thiz, jint channel_count, jint sample_rate) {
-    return initialize_playback_device(channel_count, sample_rate);
+    // return initialize_playback_device(channel_count, sample_rate); FIXME
+    return 0;
 }
 
 JNIEXPORT jint JNICALL

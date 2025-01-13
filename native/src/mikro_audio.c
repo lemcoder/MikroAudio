@@ -17,34 +17,7 @@ static ma_uint64 playbackBufferSize = 0;
 static ma_uint64 playbackCursor = 0;
 static ma_uint32 playbackBytesPerFrame = 0;
 
-static void playback_data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount) {
-    if (!pPlaybackBuffer || playbackBufferSize == 0 || playbackBytesPerFrame == 0) {
-        return;
-    }
-
-    ma_uint64 byteCount = frameCount * playbackBytesPerFrame;
-    ma_uint32 bytesToPlay;
-
-    if (playbackCursor >= playbackBufferSize) {
-        playbackCursor = 0;  // Loop playback by resetting the cursor
-    }
-
-    if (playbackCursor + byteCount > playbackBufferSize) {
-        bytesToPlay = playbackBufferSize - playbackCursor;
-        frameCount = bytesToPlay / playbackBytesPerFrame;
-    } else {
-        bytesToPlay = byteCount;
-    }
-
-    if (bytesToPlay > 0) {
-        ma_copy_pcm_frames(pOutput, pPlaybackBuffer + playbackCursor, frameCount, pDevice->playback.format, pDevice->playback.channels);
-        playbackCursor += bytesToPlay;
-    }
-
-    (void)pInput;  // Unused parameter
-}
-
-int initialize_playback_device(int channelCount, int sampleRate) {
+int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback) {
     ma_device_config deviceConfig;
     ma_result result;
 
@@ -57,7 +30,7 @@ int initialize_playback_device(int channelCount, int sampleRate) {
     deviceConfig.playback.format = ma_format_f32;
     deviceConfig.playback.channels = channelCount;
     deviceConfig.sampleRate = sampleRate;
-    deviceConfig.dataCallback = playback_data_callback;
+    deviceConfig.dataCallback = dataCallback;
     deviceConfig.noFixedSizedCallback = MA_TRUE;
 
     result = ma_device_init(NULL, &deviceConfig, pPlaybackDevice);

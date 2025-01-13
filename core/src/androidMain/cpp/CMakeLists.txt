@@ -13,5 +13,5 @@ add_library(
 
 # Include the shared header files from the project root's 'native/src' directory
 include_directories(
-        ${CMAKE_SOURCE_DIR}/../../../../native/src
+        ${CMAKE_SOURCE_DIR}/../../../../native/include
 )

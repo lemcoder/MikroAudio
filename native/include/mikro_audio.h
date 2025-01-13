@@ -4,8 +4,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "miniaudio/miniaudio.h"
 
-int initialize_playback_device(int channelCount, int sampleRate);
+typedef void (*ma_data_callback)(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
+
+int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback);
 
 int set_playback_buffer(void *buffer, long long int sizeInBytes);
 
