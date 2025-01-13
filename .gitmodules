@@ -1,3 +1,6 @@
 [submodule "native/src/miniaudio"]
 	path = native/src/miniaudio
 	url = git@github.com:lemcoder/miniaudio-stripped.git
+[submodule "native/include/miniaudio"]
+	path = native/include/miniaudio
+	url = git@github.com:lemcoder/miniaudio-stripped.git
