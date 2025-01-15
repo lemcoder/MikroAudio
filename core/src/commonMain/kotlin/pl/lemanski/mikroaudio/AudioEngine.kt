@@ -1,5 +1,7 @@
 package pl.lemanski.mikroaudio
 
+import pl.lemanski.mikroaudio.internal.PlaybackManager
+
 interface AudioEngine {
     interface Options {
         val channelCount: Int
@@ -13,7 +15,7 @@ interface AudioEngine {
 
     fun stopRecording(): ByteArray
 
-    fun setupPlayback(buffer: ByteArray)
+    fun setupPlayback(callback: PlaybackManager.PlaybackCallback)
     fun startPlayback()
 
     fun stopPlayback()

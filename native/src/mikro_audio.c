@@ -7,17 +7,13 @@
 
 // Miniaudio Configuration
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio/miniaudio.h"
-
 // #define MA_NO_RUNTIME_LINKING
 
-static ma_device *pPlaybackDevice = NULL;
-static void *pPlaybackBuffer = NULL;
-static ma_uint64 playbackBufferSize = 0;
-static ma_uint64 playbackCursor = 0;
-static ma_uint32 playbackBytesPerFrame = 0;
+#include "miniaudio/miniaudio.h"
 
-int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback) {
+static ma_device *pPlaybackDevice = NULL;
+
+int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, void* userData) {
     ma_device_config deviceConfig;
     ma_result result;
 
@@ -33,37 +29,21 @@ int initialize_playback_device(int channelCount, int sampleRate, ma_data_callbac
     deviceConfig.dataCallback = dataCallback;
     deviceConfig.noFixedSizedCallback = MA_TRUE;
 
+    // Allocate memory for the integer value 420 and store it in pUserData
+    int* data = (int*)malloc(sizeof(int));
+    if (!data) {
+        free(pPlaybackDevice);
+        return MA_OUT_OF_MEMORY;
+    }
+    *data = 420; // Store the value 420 in the allocated memory
+    deviceConfig.pUserData = (void*)data;
+
     result = ma_device_init(NULL, &deviceConfig, pPlaybackDevice);
     if (result != MA_SUCCESS) {
         free(pPlaybackDevice);
         pPlaybackDevice = NULL;
         return MA_ERROR;
     }
-
-    playbackBytesPerFrame = ma_get_bytes_per_frame(deviceConfig.playback.format, deviceConfig.playback.channels);
-    return MA_SUCCESS;
-}
-
-int set_playback_buffer(void *buffer, long long int sizeInBytes) {
-    if (!pPlaybackDevice) {
-        return MA_ERROR;
-    }
-
-    if (pPlaybackBuffer) {
-        free(pPlaybackBuffer);
-    }
-
-    if (!buffer) {
-        return MA_ERROR;
-    }
-
-    pPlaybackBuffer = calloc(1, sizeInBytes);
-    if (!pPlaybackBuffer) {
-        return MA_ERROR;
-    }
-
-    ma_copy_memory_64(pPlaybackBuffer, buffer, sizeInBytes);
-    playbackBufferSize = sizeInBytes;
 
     return MA_SUCCESS;
 }
@@ -74,12 +54,6 @@ void uninitialize_playback_device() {
         free(pPlaybackDevice);
         pPlaybackDevice = NULL;
     }
-
-    if (pPlaybackBuffer) {
-        free(pPlaybackBuffer);
-        pPlaybackBuffer = NULL;
-    }
-
 }
 
 int start_playback() {

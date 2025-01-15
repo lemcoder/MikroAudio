@@ -4,7 +4,7 @@ import io.github.lemcoder.KonanPluginExtension
 
 plugins {
     alias(libs.plugins.jetbrains.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+//    alias(libs.plugins.android.library)
     alias(libs.plugins.konanplugin)
     id("maven-publish")
 }
@@ -12,26 +12,27 @@ plugins {
 group = "pl.lemanski.mikroaudio"
 version = "0.0.3"
 
-android {
-    namespace = "pl.lemanski.mikroaudio"
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-    }
-
-    externalNativeBuild {
-        cmake {
-            path = file("src/androidMain/cpp/CMakeLists.txt")
-        }
-    }
-}
+//android {
+//    namespace = "pl.lemanski.mikroaudio"
+//    defaultConfig {
+//        minSdk = libs.versions.android.minSdk.get().toInt()
+//        compileSdk = libs.versions.android.compileSdk.get().toInt()
+//    }
+//
+//    externalNativeBuild {
+//        cmake {
+//            path = file("src/androidMain/cpp/CMakeLists.txt")
+//        }
+//    }
+//}
 
 kotlin {
     jvmToolchain(17)
 
-    androidTarget().apply {
-        publishAllLibraryVariants()
-    }
+    // TODO uncomment when API is stable
+//    androidTarget().apply {
+//        publishAllLibraryVariants()
+//    }
 
     listOf(
         mingwX64(),

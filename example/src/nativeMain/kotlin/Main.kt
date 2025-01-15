@@ -23,13 +23,13 @@ fun generateSinWave(buffLen: Int): FloatArray {
     val twopi: Double = 8.0 * atan(1.0)
     var phase: Double = 0.0
 
-        for (i in 0 until buffLen) {
-            frameOut[i] = (amplitude * sin(phase)).toFloat()
-            phase += twopi * frequency / 44100
-            if (phase > twopi) {
-                phase -= twopi
-            }
+    for (i in 0 until buffLen) {
+        frameOut[i] = (amplitude * sin(phase)).toFloat()
+        phase += twopi * frequency / 44100
+        if (phase > twopi) {
+            phase -= twopi
         }
+    }
 
     return frameOut
 }
@@ -37,8 +37,11 @@ fun generateSinWave(buffLen: Int): FloatArray {
 fun main() {
     val audio = MikroAudio()
 
-    generateSinWave(44100).let {
-        audio.playback(it.toByteArrayLittleEndian())
+    generateSinWave(44100).let { bytes ->
+
+        audio.playback(onFrames = { frameCount ->
+            bytes.toByteArrayLittleEndian().drop(frameCount).toByteArray()
+        })
     }
 
     sleep(5u)

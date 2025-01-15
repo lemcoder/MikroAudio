@@ -21,8 +21,8 @@ class DefaultAudioEngine(
         return recordManager.stopRecording()
     }
 
-    override fun setupPlayback(buffer: ByteArray) {
-        playbackManager.setupPlayback(buffer)
+    override fun setupPlayback(callback: PlaybackManager.PlaybackCallback) {
+        playbackManager.setCallback(callback)
     }
 
     override fun startPlayback() {

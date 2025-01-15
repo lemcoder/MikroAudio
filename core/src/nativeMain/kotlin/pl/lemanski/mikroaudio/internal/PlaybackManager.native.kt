@@ -8,52 +8,45 @@ internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): Play
 }
 
 @OptIn(ExperimentalForeignApi::class)
-typealias CVoidPointer = CPointer<out CPointed>?
-
-//static void playback_data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount) {
-//    if (!pPlaybackBuffer || playbackBufferSize == 0 || playbackBytesPerFrame == 0) {
-//        return;
-//    }
-//
-//    ma_uint64 byteCount = frameCount * playbackBytesPerFrame;
-//    ma_uint32 bytesToPlay;
-//
-//    if (playbackCursor >= playbackBufferSize) {
-//        playbackCursor = 0;  // Loop playback by resetting the cursor
-//    }
-//
-//    if (playbackCursor + byteCount > playbackBufferSize) {
-//        bytesToPlay = playbackBufferSize - playbackCursor;
-//        frameCount = bytesToPlay / playbackBytesPerFrame;
-//    } else {
-//        bytesToPlay = byteCount;
-//    }
-//
-//    if (bytesToPlay > 0) {
-//        ma_copy_pcm_frames(pOutput, pPlaybackBuffer + playbackCursor, frameCount, pDevice->playback.format, pDevice->playback.channels);
-//        playbackCursor += bytesToPlay;
-//    }
-//
-//    (void)pInput;  // Unused parameter
-//}
-
-
-@OptIn(ExperimentalForeignApi::class)
 internal class PlaybackManagerImpl(
     private val channelCount: Int,
     private val sampleRate: Int
 ) : PlaybackManager {
 
-    private val callback = staticCFunction { device: CPointer<ma_device>?, out: CVoidPointer, input: CVoidPointer, frames: UInt ->
-        println(frames)
+    private var playbackCallback: PlaybackManager.PlaybackCallback = PlaybackManager.PlaybackCallback { ByteArray(0) } // empty callback
+    private var userData = StableRef.create(playbackCallback)
+
+    @OptIn(ExperimentalStdlibApi::class)
+    private val dataCallback = staticCFunction { device: CPointer<ma_device>?, out: COpaquePointer?, input: COpaquePointer?, frames: UInt ->
+        val userData = device?.pointed?.pUserData?.reinterpret<IntVar>()
+
+        if (userData != null) {
+            // Read the integer stored in userData
+            val number = userData.pointed.value
+            println("User data received: $number") // Should print 420
+        } else {
+            println("User data is null")
+        }
+//.asStableRef<PlaybackManager.PlaybackCallback>()?.get()
+//        val frameData = callback.onFrames(frames.toInt())
+//        frameData.usePinned { pinned ->
+//            ma_copy_pcm_frames(
+//                out,
+//                pinned.addressOf(0),
+//                frames.toULong(),
+//                ma_format_f32,
+//                1u // TODO pass channelCount
+//            )
+//        }
     }
 
     init {
-        initialize_playback_device(channelCount, sampleRate, callback)
-    }
-
-    override fun setupPlayback(buffer: ByteArray) {
-        set_playback_buffer(buffer.toCValues(), buffer.size.toLong())
+        initialize_playback_device(
+            channelCount = channelCount,
+            sampleRate = sampleRate,
+            dataCallback = dataCallback,
+            userData = userData.asCPointer()
+        )
     }
 
     override fun startPlayback() {
@@ -66,5 +59,12 @@ internal class PlaybackManagerImpl(
 
     override fun close() {
         uninitialize_playback_device()
+        userData.dispose()
+    }
+
+    override fun setCallback(callback: PlaybackManager.PlaybackCallback) {
+        playbackCallback = callback
+        userData.dispose()
+        userData = StableRef.create(playbackCallback)
     }
 }

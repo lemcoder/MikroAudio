@@ -15,8 +15,8 @@ class MikroAudio(
         return audioEngine.stopRecording()
     }
 
-    fun playback(buffer: ByteArray) {
-        audioEngine.setupPlayback(buffer)
+    fun playback(onFrames: (frameCount: Int) -> ByteArray) {
+        audioEngine.setupPlayback(onFrames)
         audioEngine.startPlayback()
     }
 
