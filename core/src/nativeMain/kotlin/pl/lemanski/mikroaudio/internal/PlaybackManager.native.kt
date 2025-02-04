@@ -2,7 +2,6 @@ package pl.lemanski.mikroaudio.internal
 
 import kotlinx.cinterop.*
 import mikroAudio.*
-import platform.posix.memcpy
 
 internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): PlaybackManager {
     return PlaybackManagerImpl(channelCount, sampleRate)
@@ -24,15 +23,13 @@ internal class PlaybackManagerImpl(
 
     private val dataCallback = staticCFunction { device: CPointer<ma_device>?, out: COpaquePointer?, _: COpaquePointer?, frames: UInt ->
         val sizeInBytes = ma_get_bytes_per_frame(ma_format_f32, CallbackHolder.channels.toUInt()) * frames
-        CallbackHolder.callback?.invoke(sizeInBytes)?.usePinned { array ->
-            memcpy(out, array.addressOf(0), sizeInBytes.convert())
-        }
-
-        Unit
+        val bytes = CallbackHolder.callback?.invoke(sizeInBytes) ?: throw IllegalStateException("Callback not set")
+        ma_copy_pcm_frames(out, bytes.refTo(0), frames.toULong(), ma_format_f32, CallbackHolder.channels.toUInt())
     }
 
     // TODO check what happens when we have multiple instances of PlaybackManagerImpl
     init {
+        println("Created PlaybackManager")
         CallbackHolder.callback = null
         CallbackHolder.channels = channelCount
         initialize_playback_device(
@@ -56,6 +53,7 @@ internal class PlaybackManagerImpl(
     }
 
     override fun setCallback(callback: PlaybackManager.PlaybackCallback) {
+        println("Callback set")
         CallbackHolder.callback = callback
     }
 }

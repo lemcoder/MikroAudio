@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.multiplatform)
+    alias(libs.plugins.multiplatform)
     id("maven-publish")
 }
 
@@ -18,6 +18,7 @@ kotlin {
     sourceSets {
         nativeMain.dependencies {
             implementation(projects.core)
+            implementation(libs.io)
         }
     }
 }

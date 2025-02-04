@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.konan.util.DependencyDirectories.localKonanDir
 import io.github.lemcoder.KonanPluginExtension
 
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.multiplatform)
+    alias(libs.plugins.multiplatform)
 //    alias(libs.plugins.android.library)
     alias(libs.plugins.konanplugin)
     id("maven-publish")

@@ -1,7 +1,14 @@
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.readByteArray
+import pl.lemanski.mikroaudio.AudioEngine
 import pl.lemanski.mikroaudio.MikroAudio
+import pl.lemanski.mikroaudio.internal.DefaultAudioEngine
 import platform.posix.sleep
 import kotlin.math.PI
 import kotlin.math.sin
+import kotlin.test.assertTrue
 
 fun FloatArray.toByteArrayLittleEndian(): ByteArray {
     val byteArray = ByteArray(size * Float.SIZE_BYTES)
@@ -35,17 +42,36 @@ fun generateSinWave(buffLen: Int, sampleRate: Int = 44100): FloatArray {
 }
 
 fun main() {
-    val audio = MikroAudio()
-
-    generateSinWave(44100).let { bytes ->
-        audio.playback(callback = { sizeInBytes ->
-            if (sizeInBytes <= Int.MAX_VALUE.toUInt()) {
-                bytes.toByteArrayLittleEndian().copyOf(sizeInBytes.toInt())
-            } else {
-                throw IndexOutOfBoundsException("Size of the buffer is too big")
+    val audio = MikroAudio(
+        audioEngine = DefaultAudioEngine(
+            options = object : AudioEngine.Options {
+                override val channelCount: Int = 1
+                override val sampleRate: Int = 44_100
             }
+        )
+    )
+
+    val wavFile = Path("C:\\Users\\Mikolaj\\Desktop\\midi\\output.wav")
+    val wavBytes = SystemFileSystem.source(wavFile).buffered().readByteArray()
+    val wavNoHeader = wavBytes.copyOfRange(44, wavBytes.size)
+
+    println(wavNoHeader.size)
+    assertTrue { wavNoHeader.isNotEmpty() }
+
+    val sinWave = generateSinWave(1024)
+
+    wavNoHeader.let { bytes ->
+        var pos = 0
+
+        audio.playback(callback = { sizeInBytes ->
+            pos += sizeInBytes.toInt()
+            if (pos > bytes.size) {
+                pos = sizeInBytes.toInt()
+            }
+
+            bytes.copyOfRange(pos - sizeInBytes.toInt(), pos)
         })
     }
 
-    sleep(5u)
+    sleep(30u)
 }
