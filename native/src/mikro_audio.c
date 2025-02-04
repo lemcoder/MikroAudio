@@ -28,15 +28,7 @@ int initialize_playback_device(int channelCount, int sampleRate, ma_data_callbac
     deviceConfig.sampleRate = sampleRate;
     deviceConfig.dataCallback = dataCallback;
     deviceConfig.noFixedSizedCallback = MA_TRUE;
-
-    // Allocate memory for the integer value 420 and store it in pUserData
-    int* data = (int*)malloc(sizeof(int));
-    if (!data) {
-        free(pPlaybackDevice);
-        return MA_OUT_OF_MEMORY;
-    }
-    *data = 420; // Store the value 420 in the allocated memory
-    deviceConfig.pUserData = (void*)data;
+    deviceConfig.pUserData = userData;
 
     result = ma_device_init(NULL, &deviceConfig, pPlaybackDevice);
     if (result != MA_SUCCESS) {

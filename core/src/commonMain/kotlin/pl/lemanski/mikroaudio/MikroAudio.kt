@@ -1,6 +1,7 @@
 package pl.lemanski.mikroaudio
 
 import pl.lemanski.mikroaudio.internal.DefaultAudioEngine
+import pl.lemanski.mikroaudio.internal.PlaybackManager
 
 class MikroAudio(
     private val audioEngine: AudioEngine = DefaultAudioEngine()
@@ -15,8 +16,8 @@ class MikroAudio(
         return audioEngine.stopRecording()
     }
 
-    fun playback(onFrames: (frameCount: Int) -> ByteArray) {
-        audioEngine.setupPlayback(onFrames)
+    fun playback(callback: PlaybackManager.PlaybackCallback) {
+        audioEngine.setupPlayback(callback)
         audioEngine.startPlayback()
     }
 

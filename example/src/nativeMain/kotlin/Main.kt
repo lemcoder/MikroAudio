@@ -1,6 +1,6 @@
 import pl.lemanski.mikroaudio.MikroAudio
-import platform.posix.atan
 import platform.posix.sleep
+import kotlin.math.PI
 import kotlin.math.sin
 
 fun FloatArray.toByteArrayLittleEndian(): ByteArray {
@@ -15,19 +15,19 @@ fun FloatArray.toByteArrayLittleEndian(): ByteArray {
     return byteArray
 }
 
-fun generateSinWave(buffLen: Int): FloatArray {
-    // simple sine wave generator
+
+fun generateSinWave(buffLen: Int, sampleRate: Int = 44100): FloatArray {
     val frameOut = FloatArray(buffLen)
-    val amplitude = .01
-    val frequency = 440
-    val twopi: Double = 8.0 * atan(1.0)
-    var phase: Double = 0.0
+    val amplitude = 0.5
+    val frequency = 440.0
+    val twoPi = 2.0 * PI
+    var phase = 0.0
 
     for (i in 0 until buffLen) {
         frameOut[i] = (amplitude * sin(phase)).toFloat()
-        phase += twopi * frequency / 44100
-        if (phase > twopi) {
-            phase -= twopi
+        phase += twoPi * frequency / sampleRate // Correct phase increment
+        if (phase >= twoPi) {
+            phase -= twoPi // Wrap phase to avoid overflow
         }
     }
 
@@ -38,9 +38,12 @@ fun main() {
     val audio = MikroAudio()
 
     generateSinWave(44100).let { bytes ->
-
-        audio.playback(onFrames = { frameCount ->
-            bytes.toByteArrayLittleEndian().drop(frameCount).toByteArray()
+        audio.playback(callback = { sizeInBytes ->
+            if (sizeInBytes <= Int.MAX_VALUE.toUInt()) {
+                bytes.toByteArrayLittleEndian().copyOf(sizeInBytes.toInt())
+            } else {
+                throw IndexOutOfBoundsException("Size of the buffer is too big")
+            }
         })
     }
 

@@ -2,7 +2,7 @@ package pl.lemanski.mikroaudio.internal
 
 interface PlaybackManager : AutoCloseable {
     fun interface PlaybackCallback {
-        fun onFrames(frameCount: Int): ByteArray
+        operator fun invoke(bytes: UInt): ByteArray
     }
 
     fun startPlayback()

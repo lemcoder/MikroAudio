@@ -2,9 +2,18 @@ package pl.lemanski.mikroaudio.internal
 
 import kotlinx.cinterop.*
 import mikroAudio.*
+import platform.posix.memcpy
 
 internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int): PlaybackManager {
     return PlaybackManagerImpl(channelCount, sampleRate)
+}
+
+/**
+ * This is basically a global variable.
+ */
+private object CallbackHolder {
+    var callback: PlaybackManager.PlaybackCallback? = null
+    var channels: Int = 0
 }
 
 @OptIn(ExperimentalForeignApi::class)
@@ -13,39 +22,24 @@ internal class PlaybackManagerImpl(
     private val sampleRate: Int
 ) : PlaybackManager {
 
-    private var playbackCallback: PlaybackManager.PlaybackCallback = PlaybackManager.PlaybackCallback { ByteArray(0) } // empty callback
-    private var userData = StableRef.create(playbackCallback)
-
-    @OptIn(ExperimentalStdlibApi::class)
-    private val dataCallback = staticCFunction { device: CPointer<ma_device>?, out: COpaquePointer?, input: COpaquePointer?, frames: UInt ->
-        val userData = device?.pointed?.pUserData?.reinterpret<IntVar>()
-
-        if (userData != null) {
-            // Read the integer stored in userData
-            val number = userData.pointed.value
-            println("User data received: $number") // Should print 420
-        } else {
-            println("User data is null")
+    private val dataCallback = staticCFunction { device: CPointer<ma_device>?, out: COpaquePointer?, _: COpaquePointer?, frames: UInt ->
+        val sizeInBytes = ma_get_bytes_per_frame(ma_format_f32, CallbackHolder.channels.toUInt()) * frames
+        CallbackHolder.callback?.invoke(sizeInBytes)?.usePinned { array ->
+            memcpy(out, array.addressOf(0), sizeInBytes.convert())
         }
-//.asStableRef<PlaybackManager.PlaybackCallback>()?.get()
-//        val frameData = callback.onFrames(frames.toInt())
-//        frameData.usePinned { pinned ->
-//            ma_copy_pcm_frames(
-//                out,
-//                pinned.addressOf(0),
-//                frames.toULong(),
-//                ma_format_f32,
-//                1u // TODO pass channelCount
-//            )
-//        }
+
+        Unit
     }
 
+    // TODO check what happens when we have multiple instances of PlaybackManagerImpl
     init {
+        CallbackHolder.callback = null
+        CallbackHolder.channels = channelCount
         initialize_playback_device(
             channelCount = channelCount,
             sampleRate = sampleRate,
             dataCallback = dataCallback,
-            userData = userData.asCPointer()
+            userData = null
         )
     }
 
@@ -59,12 +53,9 @@ internal class PlaybackManagerImpl(
 
     override fun close() {
         uninitialize_playback_device()
-        userData.dispose()
     }
 
     override fun setCallback(callback: PlaybackManager.PlaybackCallback) {
-        playbackCallback = callback
-        userData.dispose()
-        userData = StableRef.create(playbackCallback)
+        CallbackHolder.callback = callback
     }
 }
