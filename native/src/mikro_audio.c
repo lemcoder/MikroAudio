@@ -11,62 +11,32 @@
 
 #include "miniaudio/miniaudio.h"
 
-static ma_device *pPlaybackDevice = NULL;
-
-int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, void* userData) {
+ma_device* initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, ma_format format, void* userData) {
+    ma_device* device = (ma_device*)malloc(sizeof(ma_device));
     ma_device_config deviceConfig;
     ma_result result;
 
-    pPlaybackDevice = (ma_device *)malloc(sizeof(ma_device));
-    if (!pPlaybackDevice) {
-        return MA_OUT_OF_MEMORY;
-    }
-
     deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format = ma_format_f32;
+    deviceConfig.playback.format = format;
     deviceConfig.playback.channels = channelCount;
     deviceConfig.sampleRate = sampleRate;
     deviceConfig.dataCallback = dataCallback;
     deviceConfig.noFixedSizedCallback = MA_TRUE;
     deviceConfig.pUserData = userData;
 
-    result = ma_device_init(NULL, &deviceConfig, pPlaybackDevice);
+    result = ma_device_init(NULL, &deviceConfig, device);
     if (result != MA_SUCCESS) {
-        free(pPlaybackDevice);
-        pPlaybackDevice = NULL;
-        return MA_ERROR;
+         return NULL;
     }
 
-    return MA_SUCCESS;
+    return device;
 }
 
-void uninitialize_playback_device() {
-    if (pPlaybackDevice) {
-        ma_device_uninit(pPlaybackDevice);
-        free(pPlaybackDevice);
-        pPlaybackDevice = NULL;
+void uninitialize_playback_device(ma_device* device) {
+    if (device) {
+        ma_device_uninit(device);
+        free(device);
     }
-}
-
-int start_playback() {
-    if (!pPlaybackDevice) {
-        return MA_ERROR;
-    }
-
-    ma_result result = ma_device_start(pPlaybackDevice);
-    if (result != MA_SUCCESS) {
-        return MA_ERROR;
-    }
-
-    return MA_SUCCESS;
-}
-
-void stop_playback() {
-    if (!pPlaybackDevice) {
-        return;
-    }
-
-    ma_device_stop(pPlaybackDevice);
 }
 
 static ma_device recordingDevice;

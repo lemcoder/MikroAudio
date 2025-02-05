@@ -6,6 +6,7 @@ interface AudioEngine {
     interface Options {
         val channelCount: Int
         val sampleRate: Int
+        val format: Format
     }
 
     val options: Options

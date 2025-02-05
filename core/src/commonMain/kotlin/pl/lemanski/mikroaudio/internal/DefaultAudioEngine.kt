@@ -6,7 +6,7 @@ class DefaultAudioEngine(
     override val options: AudioEngine.Options = DefaultAudioEngineOptions
 ) : AudioEngine {
 
-    private val playbackManager = getPlaybackManager(options.channelCount, options.sampleRate)
+    private val playbackManager = getPlaybackManager(options.channelCount, options.sampleRate, options.format)
     private val recordManager = getRecordManager(options.channelCount, options.sampleRate)
 
     override fun setupRecording(bufferSize: Long) {

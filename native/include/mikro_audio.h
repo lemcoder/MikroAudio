@@ -10,13 +10,9 @@
 
 typedef void (*ma_data_callback)(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 
-int initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, void* userData);
+ma_device* initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, ma_format format, void* userData);
 
-void uninitialize_playback_device();
-
-int start_playback();
-
-void stop_playback();
+void uninitialize_playback_device(ma_device* device);
 
 // Recording
 

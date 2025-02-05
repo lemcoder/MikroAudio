@@ -3,6 +3,7 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import kotlinx.io.readByteArray
 import pl.lemanski.mikroaudio.AudioEngine
+import pl.lemanski.mikroaudio.Format
 import pl.lemanski.mikroaudio.MikroAudio
 import pl.lemanski.mikroaudio.internal.DefaultAudioEngine
 import platform.posix.sleep
@@ -45,13 +46,14 @@ fun main() {
     val audio = MikroAudio(
         audioEngine = DefaultAudioEngine(
             options = object : AudioEngine.Options {
-                override val channelCount: Int = 1
+                override val channelCount: Int = 2
                 override val sampleRate: Int = 44_100
+                override val format: Format = Format.S16
             }
         )
     )
 
-    val wavFile = Path("C:\\Users\\Mikolaj\\Desktop\\midi\\output.wav")
+    val wavFile = Path("C:\\Users\\Mikolaj\\Desktop\\midi\\sample.wav")
     val wavBytes = SystemFileSystem.source(wavFile).buffered().readByteArray()
     val wavNoHeader = wavBytes.copyOfRange(44, wavBytes.size)
 
