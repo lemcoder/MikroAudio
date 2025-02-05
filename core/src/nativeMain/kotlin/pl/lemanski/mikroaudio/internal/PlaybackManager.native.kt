@@ -10,6 +10,7 @@ internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int, forma
 
 /**
  * This is basically a global variable.
+ * TODO map this to struct and pass as user data to ma_device_config
  */
 private object CallbackHolder {
     var callback: PlaybackManager.PlaybackCallback? = null
