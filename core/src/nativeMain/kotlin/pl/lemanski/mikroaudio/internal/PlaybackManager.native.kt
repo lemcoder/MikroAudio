@@ -8,28 +8,6 @@ internal actual fun getPlaybackManager(channelCount: Int, sampleRate: Int, forma
     return PlaybackManagerImpl(channelCount, sampleRate, format)
 }
 
-/**
- * This is basically a global variable.
- * TODO map this to struct and pass as user data to ma_device_config
- */
-private object CallbackHolder {
-    var callback: PlaybackManager.PlaybackCallback? = null
-    var channelCount: Int = 0
-    var sampleRate: Int = 0
-    var format: Format = Format.F32
-
-    @OptIn(ExperimentalForeignApi::class)
-    fun toNativeFormat(format: Format): ma_format {
-        return when (format) {
-            Format.F32 -> ma_format_f32
-            Format.S16 -> ma_format_s16
-            Format.S24 -> ma_format_s24
-            Format.S32 -> ma_format_s32
-            Format.U8  -> ma_format_u8
-        }
-    }
-}
-
 @OptIn(ExperimentalForeignApi::class)
 internal class PlaybackManagerImpl(
     private val channelCount: Int,
@@ -40,23 +18,36 @@ internal class PlaybackManagerImpl(
     private var playbackDevice: CPointer<ma_device>? = null
 
     private val dataCallback = staticCFunction { device: CPointer<ma_device>?, out: COpaquePointer?, _: COpaquePointer?, frames: UInt ->
-        val nativeFormat = CallbackHolder.toNativeFormat(CallbackHolder.format)
+        val info = nativeHeap.alloc<ma_device_info>()
+        ma_device_get_info(device, ma_device_type_playback, info.ptr)
 
-        println(CallbackHolder.format.name)
-
-        val sizeInBytes = ma_get_bytes_per_frame(nativeFormat, CallbackHolder.channelCount.toUInt()) * frames
-        val bytes = CallbackHolder.callback?.invoke(sizeInBytes) ?: throw IllegalStateException("Callback not set")
-        ma_copy_pcm_frames(out, bytes.refTo(0), frames.toULong(), nativeFormat, CallbackHolder.channelCount.toUInt())
+        val nativeFormat = Settings.FORMAT
+        val channelCount = Settings.CHANNEL_COUNT
+        val sizeInBytes = ma_get_bytes_per_frame(nativeFormat, channelCount) * frames
+        val bytes = Settings.CALLBACK?.invoke(sizeInBytes) ?: throw IllegalStateException("Callback not set")
+        ma_copy_pcm_frames(out, bytes.refTo(0), frames.toULong(), nativeFormat, channelCount)
     }
 
-    // TODO check what happens when we have multiple instances of PlaybackManagerImpl
     init {
-        CallbackHolder.callback = null
-        initializeCallbackHolder()
-        playbackDevice = initialize_playback_device(channelCount, sampleRate, dataCallback, CallbackHolder.toNativeFormat(format), null)
+        playbackDevice = nativeHeap.alloc<ma_device>().ptr
+        val deviceConfig = ma_device_config_init(ma_device_type_playback)
+
+        memScoped {
+            val config = deviceConfig.getPointer(this).reinterpret<ma_device_config_flat>()
+
+            config.pointed.playback.format = format.toNativeFormat()
+            config.pointed.playback.channels = channelCount.toUInt()
+            config.pointed.sampleRate = sampleRate.toUInt()
+            config.pointed.dataCallback = this@PlaybackManagerImpl.dataCallback
+            ma_device_init(null, config.reinterpret(), playbackDevice)
+        }
+
         if (playbackDevice == null) {
             throw IllegalStateException("Failed to initialize playback device")
         }
+
+        Settings.CHANNEL_COUNT = channelCount.toUInt()
+        Settings.FORMAT = format.toNativeFormat()
     }
 
     override fun startPlayback() {
@@ -75,17 +66,27 @@ internal class PlaybackManagerImpl(
     }
 
     override fun close() {
-        uninitialize_playback_device(playbackDevice)
+        ma_device_uninit(playbackDevice)
     }
 
     override fun setCallback(callback: PlaybackManager.PlaybackCallback) {
         println("Callback set")
-        CallbackHolder.callback = callback
+        Settings.CALLBACK = callback
     }
 
-    internal fun initializeCallbackHolder() {
-        CallbackHolder.channelCount = channelCount
-        CallbackHolder.sampleRate = sampleRate
-        CallbackHolder.format = format
+    internal fun Format.toNativeFormat(): ma_format {
+        return when (this) {
+            Format.F32 -> ma_format_f32
+            Format.S16 -> ma_format_s16
+            Format.S24 -> ma_format_s24
+            Format.S32 -> ma_format_s32
+            Format.U8  -> ma_format_u8
+        }
+    }
+
+    object Settings {
+        var CHANNEL_COUNT = 2u
+        var FORMAT = ma_format_f32
+        var CALLBACK = null as PlaybackManager.PlaybackCallback?
     }
 }
