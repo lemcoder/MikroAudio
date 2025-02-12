@@ -9,31 +9,18 @@ internal class AndroidRecordManager(
     private var lastBufferSize: Long = 0
 
     override fun setupRecording(bufferSize: Long) = launchNative("initialize_recording: $channelCount, $sampleRate, $bufferSize") {
-        val result = initializeRecordingNative(channelCount, sampleRate, bufferSize)
-
-        if (result == 0) {
-            lastBufferSize = bufferSize
-        }
-
-        result
-    }
-
-    override fun startRecording() = launchNative("start_recording") {
-        startRecordingNative()
-    }
-
-    override fun stopRecording(): ByteArray = stopRecordingNative(lastBufferSize)
-
-    override fun close() = launchNative("uninitialize_recording") {
-        uninitializeRecordingNative()
         return@launchNative 0
     }
 
-    private external fun initializeRecordingNative(channelCount: Int, sampleRate: Int, sizeInBytes: Long): Int
+    override fun startRecording() = launchNative("start_recording") {
+        return@launchNative 0
+    }
 
-    private external fun startRecordingNative(): Int
+    override fun stopRecording(): ByteArray {
+        return ByteArray(0)
+    }
 
-    private external fun stopRecordingNative(sizeInBytes: Long): ByteArray
-
-    private external fun uninitializeRecordingNative()
+    override fun close() = launchNative("uninitialize_recording") {
+        return@launchNative 0
+    }
 }

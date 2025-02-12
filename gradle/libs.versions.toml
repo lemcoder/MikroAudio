@@ -1,13 +1,15 @@
 [versions]
-kotlin = "2.0.20"
-agp = "8.7.0"
+kotlin = "2.1.10"
+agp = "8.7.3"
 android-minSdk = "24"
 android-compileSdk = "34"
-konanplugin = "1.0.0"
+konanplugin = "1.1.0"
 io = "0.6.0"
+panama-port = "0.0.6-preview"
 
 [libraries]
 io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "io" }
+panama-port = { module = "com.github.vova7878.PanamaPort:AndroidPanama", version.ref = "panama-port" }
 
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

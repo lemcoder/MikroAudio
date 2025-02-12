@@ -11,34 +11,8 @@
 
 #include "miniaudio/miniaudio.h"
 
-ma_device* initialize_playback_device(int channelCount, int sampleRate, ma_data_callback dataCallback, ma_format format, void* userData) {
-    ma_device* device = (ma_device*)malloc(sizeof(ma_device));
-    ma_device_config deviceConfig;
-    ma_result result;
 
-    deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format = format;
-    deviceConfig.playback.channels = channelCount;
-    deviceConfig.sampleRate = sampleRate;
-    deviceConfig.dataCallback = dataCallback;
-    deviceConfig.noFixedSizedCallback = MA_TRUE;
-    deviceConfig.pUserData = userData;
-
-    result = ma_device_init(NULL, &deviceConfig, device);
-    if (result != MA_SUCCESS) {
-         return NULL;
-    }
-
-    return device;
-}
-
-void uninitialize_playback_device(ma_device* device) {
-    if (device) {
-        ma_device_uninit(device);
-        free(device);
-    }
-}
-
+// Recording
 static ma_device recordingDevice;
 static void *pCaptureBuffer = NULL;
 static ma_uint32 recordedBytes = 0;
@@ -68,6 +42,10 @@ static void capture_data_callback(ma_device *pDevice, void *pOutput, const void 
     recordedBytes += bytesToSave;
 
     (void)pOutput;
+}
+
+int add(int a, int b) {
+    return a + b;
 }
 
 int initialize_recording(long long int sizeInBytes, int channelCount, int sampleRate) {

@@ -105,8 +105,9 @@ struct ma_device_config_flat
     struct ma_aaudio aaudio;
 };
 
-
 typedef void (*ma_data_callback)(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
+
+int add(int a, int b);
 
 // Recording
 

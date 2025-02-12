@@ -14,16 +14,14 @@ internal class AndroidPlaybackManager(
     }
 
     override fun startPlayback() = launchNative("start_playback") {
-        startPlaybackNative()
+        return@launchNative 0
     }
 
     override fun stopPlayback() = launchNative("stop_playback") {
-        stopPlaybackNative()
         return@launchNative 0
     }
 
     override fun close() = launchNative("uninitialize_playback_device") {
-        uninitializePlaybackNative()
         return@launchNative 0
     }
 
@@ -31,13 +29,4 @@ internal class AndroidPlaybackManager(
         TODO("Not yet implemented")
     }
 
-    private external fun initializePlaybackNative(channelCount: Int, sampleRate: Int): Int
-
-    private external fun setPlaybackBufferNative(buffer: ByteArray, size: Int): Int
-
-    private external fun startPlaybackNative(): Int
-
-    private external fun stopPlaybackNative()
-
-    private external fun uninitializePlaybackNative()
 }

@@ -1,6 +1,7 @@
+import io.github.lemcoder.KonanPluginExtension
+import io.github.lemcoder.LibraryType
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.util.DependencyDirectories.localKonanDir
-import io.github.lemcoder.KonanPluginExtension
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -21,7 +22,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            jniLibs.srcDirs("native/lib")
+            jniLibs.srcDirs("src/androidMain/jniLibs")
         }
     }
 }
@@ -56,18 +57,35 @@ kotlin {
     }
 }
 
-configure<KonanPluginExtension> {
-    targets = buildList {
-        add(KonanTarget.LINUX_X64)
-        add(KonanTarget.MINGW_X64)
-        if (System.getProperty("os.name").lowercase().contains("mac")) {
-            add(KonanTarget.IOS_ARM64)
-            add(KonanTarget.IOS_SIMULATOR_ARM64)
-            add(KonanTarget.IOS_X64)
-            add(KonanTarget.MACOS_X64)
-            add(KonanTarget.MACOS_ARM64)
-        }
+val staticTargets: () -> Map<KonanTarget, LibraryType> = {
+    val targets = mutableMapOf<KonanTarget, LibraryType>()
+
+    targets[KonanTarget.LINUX_X64] = LibraryType.STATIC
+    targets[KonanTarget.MINGW_X64] = LibraryType.STATIC
+
+    if (System.getProperty("os.name").lowercase().contains("mac")) {
+        targets[KonanTarget.IOS_ARM64] = LibraryType.STATIC
+        targets[KonanTarget.IOS_SIMULATOR_ARM64] = LibraryType.STATIC
+        targets[KonanTarget.IOS_X64] = LibraryType.STATIC
+        targets[KonanTarget.MACOS_X64] = LibraryType.STATIC
+        targets[KonanTarget.MACOS_ARM64] = LibraryType.STATIC
     }
+
+    targets
+}
+
+val sharedTargets: () -> Map<KonanTarget, LibraryType> = {
+    val targets = mutableMapOf<KonanTarget, LibraryType>()
+
+    targets[KonanTarget.ANDROID_ARM32] = LibraryType.SHARED
+    targets[KonanTarget.ANDROID_ARM64] = LibraryType.SHARED
+    targets[KonanTarget.ANDROID_X64] = LibraryType.SHARED
+
+    targets
+}
+
+configure<KonanPluginExtension> {
+    targets = sharedTargets() + staticTargets()
     sourceDir = "${rootDir}/native/src"
     headerDir = "${rootDir}/native/include"
     outputDir = "${rootDir}/native/lib"
@@ -80,5 +98,23 @@ configure<KonanPluginExtension> {
 publishing {
     repositories {
         mavenLocal()
+    }
+}
+
+val nativeLibsDir = file("${rootDir}/native/lib")
+
+tasks.register<Copy>("copyNativeLibs") {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    val abiMapping = mapOf(
+        "android_arm32" to "armeabi-v7a",
+        "android_arm64" to "arm64-v8a",
+        "android_x64" to "x86_64"
+    )
+
+    abiMapping.forEach { (srcFolder, abi) ->
+        copy {
+            from(file("$nativeLibsDir/$srcFolder/libma.so")) // Source
+            into(file("$projectDir/src/androidMain/jniLibs/$abi"))  // Destination
+        }
     }
 }
