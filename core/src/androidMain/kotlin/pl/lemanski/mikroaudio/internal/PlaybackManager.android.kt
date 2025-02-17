@@ -10,7 +10,7 @@ internal class AndroidPlaybackManager(
     private val format: Format
 ) : PlaybackManager {
     init {
-        System.loadLibrary("mikroAudioJNI")
+        System.loadLibrary("ma")
     }
 
     override fun startPlayback() = launchNative("start_playback") {

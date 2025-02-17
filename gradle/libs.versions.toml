@@ -1,15 +1,25 @@
 [versions]
 kotlin = "2.1.10"
 agp = "8.7.3"
-android-minSdk = "24"
+android-minSdk = "26"
 android-compileSdk = "34"
 konanplugin = "1.1.0-preview"
 io = "0.6.0"
-panama-port = "0.0.6-preview"
+panama-port = "eec31f152a"
+
+# TEST
+android-runner = "1.6.2"
+rules = "1.6.1"
+junitKtx = "1.2.1"
+
 
 [libraries]
 io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "io" }
 panama-port = { module = "com.github.vova7878.PanamaPort:AndroidPanama", version.ref = "panama-port" }
+androidX-testRunner = { group = "androidx.test", name = "runner", version.ref = "android-runner" }
+test-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

@@ -18,17 +18,29 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/androidMain/cpp/CMakeLists.txt")
+        }
+
+        ndkBuild {
+            buildStagingDirectory = projectDir.resolve("src/androidMain/jniLibs")
+        }
     }
 
     sourceSets {
-        getByName("main") {
-            jniLibs.srcDirs("src/androidMain/jniLibs")
+        getByName("androidTest") {
+            java.srcDirs("src/androidInstrumentedTest/java")
+            kotlin.srcDirs("src/androidInstrumentedTest/kotlin")
         }
     }
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 
     // TODO uncomment when API is stable
     androidTarget().apply {
@@ -53,6 +65,20 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
 
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.panama.port)
+        }
+
+        androidInstrumentedTest.dependencies {
+            implementation(libs.junit.ktx)
+            implementation(libs.androidX.testRunner)
+            implementation(libs.test.rules)
         }
     }
 }
@@ -101,20 +127,20 @@ publishing {
     }
 }
 
-val nativeLibsDir = file("${rootDir}/native/lib")
+//val nativeLibsDir = file("${rootDir}/native/lib")
 
-tasks.register<Copy>("copyNativeLibs") {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    val abiMapping = mapOf(
-        "android_arm32" to "armeabi-v7a",
-        "android_arm64" to "arm64-v8a",
-        "android_x64" to "x86_64"
-    )
-
-    abiMapping.forEach { (srcFolder, abi) ->
-        copy {
-            from(file("$nativeLibsDir/$srcFolder/libma.so")) // Source
-            into(file("$projectDir/src/androidMain/jniLibs/$abi"))  // Destination
-        }
-    }
-}
+//tasks.register<Copy>("copyNativeLibs") {
+//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+//    val abiMapping = mapOf(
+//        "android_arm32" to "armeabi-v7a",
+//        "android_arm64" to "arm64-v8a",
+//        "android_x64" to "x86_64"
+//    )
+//
+//    abiMapping.forEach { (srcFolder, abi) ->
+//        copy {
+//            from(file("$nativeLibsDir/$srcFolder/libma.so")) // Source
+//            into(file("$projectDir/src/androidMain/jniLibs/$abi"))  // Destination
+//        }
+//    }
+//}

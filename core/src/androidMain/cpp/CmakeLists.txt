@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.22.1)
+
+project("mikroaudio")
+
+# In this top level CMakeLists.txt, ${CMAKE_PROJECT_NAME} is used to define
+# the target library name; in the sub-module's CMakeLists.txt, ${PROJECT_NAME}
+# is preferred for the same purpose.
+#
+# In order to load a library into your app from Java/Kotlin, you must call
+# System.loadLibrary() and pass the name of the library defined here;
+add_library(
+    ${CMAKE_PROJECT_NAME}
+    SHARED
+    ${CMAKE_SOURCE_DIR}../../../../../native/src/mikro_audio.c
+)
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}../../../../../native/include
+    ${CMAKE_SOURCE_DIR}../../../../../native/include/miniaudio
+)
+
+target_link_libraries(
+    ${CMAKE_PROJECT_NAME}
+    android
+)
+
+# Set the output directory for the .so libraries
+set_target_properties(
+    ${CMAKE_PROJECT_NAME}
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}../../jniLibs/${ANDROID_ABI}
+)
