@@ -107,16 +107,4 @@ struct ma_device_config_flat
 
 typedef void (*ma_data_callback)(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 
-int add(int a, int b);
-
-// Recording
-
-int initialize_recording(long long int sizeInBytes, int channelCount, int sampleRate);
-
-void uninitialize_recording();
-
-void* stop_recording(long long int sizeInBytes);
-
-int start_recording();
-
 #endif // MIKRO_AUDIO_H

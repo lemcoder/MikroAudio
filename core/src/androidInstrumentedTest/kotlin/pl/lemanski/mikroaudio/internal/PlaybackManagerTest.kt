@@ -13,7 +13,6 @@ class PlaybackManagerTest {
 
     @Test
     fun testExecvp() {
-        // System.loadLibrary("c")  // Load libc
-        System.loadLibrary("mikroaudio")  // Load libc
+        System.loadLibrary("mikroaudio")
     }
 }
