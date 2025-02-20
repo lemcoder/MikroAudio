@@ -3,7 +3,6 @@ plugins {
     id("maven-publish")
 }
 
-
 kotlin {
     jvmToolchain(17)
 

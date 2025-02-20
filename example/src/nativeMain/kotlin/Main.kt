@@ -23,7 +23,6 @@ fun FloatArray.toByteArrayLittleEndian(): ByteArray {
     return byteArray
 }
 
-
 fun generateSinWave(buffLen: Int, sampleRate: Int = 44100): FloatArray {
     val frameOut = FloatArray(buffLen)
     val amplitude = 0.5

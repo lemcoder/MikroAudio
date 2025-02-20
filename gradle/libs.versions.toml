@@ -2,16 +2,30 @@
 kotlin = "2.1.10"
 agp = "8.7.3"
 android-minSdk = "24"
-android-compileSdk = "34"
-konanplugin = "1.0.0"
+android-compileSdk = "35"
 io = "0.6.0"
+konanplugin = "1.0.0"
+coroutines = "1.10.1"
+activityCompose = "1.10.0"
+composeBom = "2025.02.00"
 
 [libraries]
 io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "io" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+ui = { group = "androidx.compose.ui", name = "ui" }
+ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+material3 = { group = "androidx.compose.material3", name = "material3" }
 
 [plugins]
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 konanplugin = { id = "io.github.lemcoder.konanplugin", version.ref = "konanplugin" }
 
-
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

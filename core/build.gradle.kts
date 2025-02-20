@@ -18,18 +18,11 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
-
-    sourceSets {
-        getByName("main") {
-            jniLibs.srcDirs("native/lib")
-        }
-    }
 }
 
 kotlin {
     jvmToolchain(17)
 
-    // TODO uncomment when API is stable
     androidTarget().apply {
         publishAllLibraryVariants()
     }
@@ -51,7 +44,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.coroutines.core)
+        }
 
+        commonTest.dependencies {
+            implementation(libs.coroutines.test)
         }
     }
 }
