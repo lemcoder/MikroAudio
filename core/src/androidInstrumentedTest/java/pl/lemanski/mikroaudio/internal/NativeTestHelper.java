@@ -75,6 +75,12 @@ public class NativeTestHelper {
      * The layout for the {@code long long} C type.
      */
     public static final ValueLayout.OfLong C_LONG_LONG = (ValueLayout.OfLong) LINKER.canonicalLayouts().get("long long");
+
+    /**
+     * The layout for the {@code long long} C type.
+     */
+    public static final ValueLayout.OfLong C_LONG = (ValueLayout.OfLong) LINKER.canonicalLayouts().get("long");
+
     /**
      * The layout for the {@code float} C type
      */

@@ -9,10 +9,8 @@ import java.lang.invoke.MethodHandle
 
 @RunWith(AndroidJUnit4::class)
 class PlaybackManagerTest {
-    val linker = Linker.nativeLinker()
-
     @Test
     fun testExecvp() {
-        System.loadLibrary("mikroaudio")
+        val builder = AAudio.AAudio_createStreamBuilder()
     }
 }
