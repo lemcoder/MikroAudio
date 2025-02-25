@@ -18,5 +18,9 @@ class PlaybackManagerTest {
         AAudio.AAudioStreamBuilderSetChannelCount(builder, 2)
         AAudio.AAudioStreamBuilderSetDirection(builder, AAudioAudioDirection.OUTPUT)
         AAudio.AAudioStreamBuilderSetPerformanceMode(builder, AAudioPerformanceMode.LOW_LATENCY)
+        AAudio.AAudioStreamBuilderSetDataCallback(builder)
+        val stream = AAudio.AAudioStreamBuilderOpenStream(builder)
+        val format = AAudio.AAudioStreamGetFormat(stream)
+        println(format.name)
     }
 }
