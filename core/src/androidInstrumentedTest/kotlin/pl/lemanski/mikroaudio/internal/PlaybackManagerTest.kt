@@ -9,8 +9,14 @@ import java.lang.invoke.MethodHandle
 
 @RunWith(AndroidJUnit4::class)
 class PlaybackManagerTest {
+
     @Test
     fun testExecvp() {
-        val builder = AAudio.AAudio_createStreamBuilder()
+        val builder = AAudio.AAudioCreateStreamBuilder()
+        AAudio.AAudioStreamBuilderSetFormat(builder, AAudioFormat.PCM_FLOAT)
+        AAudio.AAudioStreamBuilderSetSampleRate(builder, 44100)
+        AAudio.AAudioStreamBuilderSetChannelCount(builder, 2)
+        AAudio.AAudioStreamBuilderSetDirection(builder, AAudioAudioDirection.OUTPUT)
+        AAudio.AAudioStreamBuilderSetPerformanceMode(builder, AAudioPerformanceMode.LOW_LATENCY)
     }
 }
