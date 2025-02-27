@@ -108,6 +108,16 @@ public enum AAudioResult {
         this.value = value;
     }
 
+    public static AAudioResult fromValue(int i) {
+        for (AAudioResult result : AAudioResult.values()) {
+            if (result.getValue() == i) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
     public int getValue() {
         return value;
     }

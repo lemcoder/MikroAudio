@@ -13,4 +13,13 @@ public enum AAudioAudioDirection {
     public int getValue() {
         return value;
     }
+
+    static AAudioAudioDirection fromValue(int value) {
+        for (AAudioAudioDirection direction : AAudioAudioDirection.values()) {
+            if (direction.getValue() == value) {
+                return direction;
+            }
+        }
+        return null;
+    }
 }

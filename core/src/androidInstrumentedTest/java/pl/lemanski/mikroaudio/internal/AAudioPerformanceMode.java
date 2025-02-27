@@ -24,6 +24,15 @@ public enum AAudioPerformanceMode {
         this.value = value;
     }
 
+    public static AAudioPerformanceMode fromValue(int i) {
+        for (AAudioPerformanceMode mode : AAudioPerformanceMode.values()) {
+            if (mode.getValue() == i) {
+                return mode;
+            }
+        }
+        return null;
+    }
+
     public int getValue() {
         return value;
     }

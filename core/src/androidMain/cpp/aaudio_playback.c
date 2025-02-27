@@ -31,6 +31,18 @@ int createPlaybackStream() {
     AAudioStreamBuilder_setDataCallback(builder, myCallback, NULL); // Optional: Set a data callback
     AAudioStreamBuilder_setErrorCallback(builder, errorCallback, nullptr); // Optional: Set an error callback
 
+    AAudioStream_getChannelCount();
+    AAudioStream_getDeviceId();
+    AAudioStream_getDirection();
+    AAudioStream_getPerformanceMode();
+    AAudioStream_getSampleRate();
+    AAudioStream_getSamplesPerFrame();
+    AAudioStream_getHardwareSampleRate();
+    AAudioStream_getHardwareChannelCount();
+    AAudioStream_getFramesPerDataCallback();
+    AAudioStream_getState()
+
+
     // Open the stream
     AAudioStream *stream;
     result = AAudioStreamBuilder_openStream(builder, &stream);
